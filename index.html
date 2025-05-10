@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convert JSON</title>
+</head>
+<body>
+    <input type="file" id="fileInput">
+    <button onclick="processFile()">Convert and Download</button>
+    <script>
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    let jsonArray = JSON.parse(event.target.result);
+
+                    let modifiedArray = jsonArray.map((entry, index) => {
+                        entry[0] = index + 1; // Assign incremental ID
+                        return entry;
+                    });
+
+
+                    // let formattedJson = "[\n" + modifiedArray.map(row => JSON.stringify(row)).join(",\n") + "\n]";
+                    let formattedJson = "[\n" + modifiedArray.map(row => "  " + JSON.stringify(row).replace(/,/g, ", ")).join(",\n") + "\n]";
+
+
+                    let jsonBlob = new Blob([formattedJson], { type: "application/json" });
+                    
+                    let link = document.createElement("a");
+                    link.href = URL.createObjectURL(jsonBlob);
+                    link.download = "words.json";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                } catch (error) {
+                    alert("Error processing the JSON file.");
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
